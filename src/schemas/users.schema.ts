@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document} from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema()
@@ -15,6 +15,9 @@ export class User extends Document {
     password: string;
     @Prop({ type: String })
     refreshToken: string;
+    // @Prop({ type:  [MongooseSchema.Types.ObjectId], ref: Post.name})
+    // likedPosts: [MongooseSchema.Types.ObjectId];
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+const schema = SchemaFactory.createForClass(User);
+export const UserSchema = schema;

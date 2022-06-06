@@ -3,15 +3,18 @@ import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { User, UserSchema } from "../schemas/users.schema";
-import { JwtModule } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { IUsersService } from "./users.service.interface";
+import { GetIdFromAuthGuard, JwtAuthGuard } from "./users.guards";
 
 @Module({
     controllers: [UsersController],
-    providers: [{
-        provide: IUsersService,
-        useClass: UsersService
-    }],
+    providers: [
+        {
+            provide: IUsersService,
+            useClass: UsersService
+        }
+    ],
     imports: [
         MongooseModule.forFeature([
             { name: User.name, schema: UserSchema }
@@ -22,6 +25,9 @@ import { IUsersService } from "./users.service.interface";
                 expiresIn: "30m"
             }
         })
+    ],
+    exports:[
+        JwtModule
     ]
 })
 export class UsersModule {

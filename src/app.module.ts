@@ -8,20 +8,25 @@ import { DatabaseConfigService } from "./database/database.config";
 import { DatabaseConfigModule } from "./database/database.module";
 import { PostsModule } from './posts/posts.module';
 import { FilesModule } from './files/files.module';
+import { resolve } from "path";
+import { ServeStaticModule } from "@nestjs/serve-static";
 
 @Module({
     controllers: [AppController],
     providers: [AppService],
     imports: [
-        DatabaseConfigModule,
         ConfigModule.forRoot({
             envFilePath: ".env"
         }),
-        UsersModule,
+        DatabaseConfigModule,
         MongooseModule.forRootAsync({
             inject: [DatabaseConfigService],
             useFactory: async (configService: DatabaseConfigService) => configService.getMongoConfig()
         }),
+        ServeStaticModule.forRoot({
+            rootPath: resolve( __dirname, 'static'),
+        }),
+        UsersModule,
         PostsModule,
         FilesModule
     ]

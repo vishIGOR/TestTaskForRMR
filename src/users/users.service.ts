@@ -14,7 +14,7 @@ export class UsersService implements IUsersService {
         private _jwtService: JwtService) {
     }
 
-    async loginUser(userDto: LoginUserDto, session: ClientSession): Promise<TokenPairDto | null> {
+    async loginUser(userDto: LoginUserDto, session: ClientSession): Promise<TokenPairDto> {
         let user = await this.getUserByEmail(userDto.email);
         if (!user) {
             throw new NotFoundException("Password or login is incorrect");
@@ -27,7 +27,7 @@ export class UsersService implements IUsersService {
         return await this.generateTokenPair(user);
     }
 
-    async refreshToken(refreshTokenDto: RefreshTokenDto, session: ClientSession): Promise<TokenPairDto | null> {
+    async refreshToken(refreshTokenDto: RefreshTokenDto, session: ClientSession): Promise<TokenPairDto> {
         let user = await this.getUserByRefreshToken(refreshTokenDto.refreshToken);
 
         if (!user) {
@@ -37,7 +37,7 @@ export class UsersService implements IUsersService {
         return await this.generateTokenPair(user);
     }
 
-    async registerUser(userDto: RegisterUserDto, session: ClientSession): Promise<TokenPairDto | null> {
+    async registerUser(userDto: RegisterUserDto, session: ClientSession): Promise<TokenPairDto> {
         let user = await this.getUserByEmail(userDto.email);
         if (user) {
             throw new ConflictException("User already exists");
@@ -67,10 +67,10 @@ export class UsersService implements IUsersService {
         return await this.generateTokenPair(user);
     }
 
-    private async getUserById(id: Schema.Types.ObjectId): Promise<User> {
+    private async getUserById(id: string): Promise<User> {
         let user;
         try {
-            user = await this._userModel.findById({ _id: id });
+            user = await this._userModel.findById(id).exec();
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
