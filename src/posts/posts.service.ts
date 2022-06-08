@@ -1,8 +1,8 @@
-import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { IPostsService } from "./posts.service.interface";
-import {  InjectModel } from "@nestjs/mongoose";
+import { InjectModel } from "@nestjs/mongoose";
 import { Post } from "../schemas/posts.schema";
-import { ClientSession,  Model, Schema } from "mongoose";
+import { ClientSession, Model, Schema } from "mongoose";
 import { CreatePostDto, GetPostDetailedDataDto, GetPostDto } from "./posts.dtos";
 import { Express } from "express";
 import { IFilesService } from "../files/files.service.interface";
@@ -32,6 +32,15 @@ export class PostsService implements IPostsService {
     }
 
     async deletePost(postId: string): Promise<void> {
+        try {
+            let fileNames = (await this.getPostById(postId)).fileNames;
+            await this._postModel.findByIdAndDelete(postId);
+            for (let fileName in fileNames) {
+                await this._filesService.deleteFile(fileName);
+            }
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
 
     }
 
@@ -65,5 +74,26 @@ export class PostsService implements IPostsService {
         dto.fileNames = post.fileNames;
         dto.likes = post.likes;
         return dto;
+    }
+
+    async isUserOwnerOfPost(userId: string, postId: string): Promise<boolean> {
+        let post = await this.getPostById(postId);
+
+        if (!post) {
+            return false;
+        }
+        if (post.authorId != userId) {
+            return false;
+        }
+
+        return true;
+    }
+
+    async getPostDetailedData(postId: string): Promise<GetPostDetailedDataDto> {
+        return Promise.resolve(undefined);
+    }
+
+    likePost(userId: string, postId: string): Promise<void> {
+        return Promise.resolve(undefined);
     }
 }

@@ -47,11 +47,12 @@ export class PostsController {
         const session = await this._mongoConnection.startSession();
         // session.startTransaction();
         try {
-            await this._postsService.createPost(req.userId, createPostDto, files, session);
+            let createdPost = await this._postsService.createPost(req.userId, createPostDto, files, session);
             // await session.commitTransaction();
-            return res.status(HttpStatus.CREATED);
+            return res.status(HttpStatus.CREATED).send(createdPost);
         } catch (error) {
             // await session.abortTransaction();
+            console.log(error);
             if (error instanceof HttpException)
                 throw error;
             throw new HttpException("Unexpected server error", HttpStatus.INTERNAL_SERVER_ERROR);

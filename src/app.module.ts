@@ -24,7 +24,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
             useFactory: async (configService: DatabaseConfigService) => configService.getMongoConfig()
         }),
         ServeStaticModule.forRoot({
-            rootPath: resolve( __dirname, 'static'),
+            rootPath: resolve( __dirname, 'uploads'),
         }),
         UsersModule,
         PostsModule,

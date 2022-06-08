@@ -7,7 +7,8 @@ import {
     UnauthorizedException
 } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { JwtService } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
+import { JwtPayload } from "./users.service.interface";
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -18,17 +19,17 @@ export class JwtAuthGuard implements CanActivate {
         const req = context.switchToHttp().getRequest();
         try {
             const authHeader = req.headers.authorization;
-            const bearer = authHeader.split(" ")[0];
+            const type = authHeader.split(" ")[0];
             const token = authHeader.split(" ")[1];
 
-            if (bearer !== "Bearer" || !token) {
+            if (type !== "Bearer" || !token) {
                 throw new UnauthorizedException({ message: "User is not authorized" });
             }
 
-            const user = this._jwtService.verify(token);
+            const user = this._jwtService.verify(token, {secret: process.env.PRIVATE_KEY});
             req.user = user;
             return true;
-        } catch (e) {
+        } catch (error) {
             throw new UnauthorizedException({ message: "User is not authorized" });
         }
     }
@@ -52,7 +53,9 @@ export class GetIdFromAuthGuard implements CanActivate {
                 return true;
             }
 
-            req.userId = this._jwtService.decode(token);
+            let userPayload = this._jwtService.decode(token) as JwtPayload;
+            req.userId = userPayload.id;
+
             return true;
         } catch (e) {
             throw new HttpException("Unexpected authguard error", HttpStatus.INTERNAL_SERVER_ERROR);

@@ -118,7 +118,11 @@ export class UsersService implements IUsersService {
 
     private async generateAccessToken(user: User): Promise<string> {
         const payload = { id: user._id, username: user.username };
-        return this._jwtService.sign(payload);
+        return this._jwtService.sign(payload, {
+            secret: process.env.PRIVATE_KEY,
+            privateKey: process.env.PRIVATE_KEY,
+            expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_MINUTES
+        });
     }
 
     private async generateTokenPair(user: User): Promise<TokenPairDto> {

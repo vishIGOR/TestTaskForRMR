@@ -13,7 +13,9 @@ import { GetIdFromAuthGuard, JwtAuthGuard } from "./users.guards";
         {
             provide: IUsersService,
             useClass: UsersService
-        }
+        },
+        JwtAuthGuard,
+        GetIdFromAuthGuard
     ],
     imports: [
         MongooseModule.forFeature([
@@ -22,11 +24,13 @@ import { GetIdFromAuthGuard, JwtAuthGuard } from "./users.guards";
         JwtModule.register({
             secret: process.env.PRIVATE_KEY || "secret",
             signOptions: {
-                expiresIn: "30m"
+                expiresIn: process.env.ACCESS_TOKEN_LIFE_IN_MINUTES || "30m"
             }
         })
     ],
-    exports:[
+    exports: [
+        JwtAuthGuard,
+        GetIdFromAuthGuard,
         JwtModule
     ]
 })
