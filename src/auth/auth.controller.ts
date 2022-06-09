@@ -1,27 +1,16 @@
-import {
-    BadRequestException,
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Inject,
-    Post,
-    Res
-} from "@nestjs/common";
-import { LoginUserDto, RefreshTokenDto, RegisterUserDto, TokenPairDto } from "./users.dtos";
-import { Connection } from "mongoose";
+import { Body, Controller, HttpException, HttpStatus, Inject, Post, Res } from "@nestjs/common";
 import { InjectConnection } from "@nestjs/mongoose";
+import { Connection } from "mongoose";
+import { LoginUserDto,RegisterUserDto } from "../users/users.dtos";
 import { Response } from "express";
 import { ApiTags } from "@nestjs/swagger";
-import { IUsersService } from "./users.service.interface";
-import { AST } from "eslint";
-import Token = AST.Token;
+import { RefreshTokenDto, TokenPairDto } from "./tokens/tokens.dtos";
+import { IAuthService } from "./auth.service.interface";
 
-@ApiTags("Пользователи")
-@Controller("users")
-export class UsersController {
-    constructor(@InjectConnection() private readonly _mongoConnection: Connection, @Inject(IUsersService) private readonly _usersService: IUsersService) {
+@ApiTags("Аутентификация")
+@Controller('auth')
+export class AuthController {
+    constructor(@InjectConnection() private readonly _mongoConnection: Connection, @Inject(IAuthService) private readonly _authService: IAuthService) {
     }
 
     @Post("/register")
@@ -29,7 +18,7 @@ export class UsersController {
         const session = await this._mongoConnection.startSession();
         // session.startTransaction();
         try {
-            let tokenPair: TokenPairDto = await this._usersService.registerUser(userDto, session);
+            let tokenPair: TokenPairDto = await this._authService.registerUser(userDto, session);
             // await session.commitTransaction();
             return res.status(HttpStatus.CREATED).send(tokenPair);
         } catch (error) {
@@ -47,7 +36,7 @@ export class UsersController {
         const session = await this._mongoConnection.startSession();
         // session.startTransaction();
         try {
-            let tokenPair: TokenPairDto = await this._usersService.loginUser(userDto, session);
+            let tokenPair: TokenPairDto = await this._authService.loginUser(userDto, session);
             // await session.commitTransaction();
             return res.status(HttpStatus.CREATED).send(tokenPair);
         } catch (error) {
@@ -66,7 +55,7 @@ export class UsersController {
         const session = await this._mongoConnection.startSession();
         // session.startTransaction();
         try {
-            let tokenPair: TokenPairDto = await this._usersService.refreshToken(refreshTokenDto, session);
+            let tokenPair: TokenPairDto = await this._authService.refreshToken(refreshTokenDto, session);
             // await session.commitTransaction();
             return res.status(HttpStatus.CREATED).send(tokenPair);
         } catch (error) {
@@ -79,6 +68,4 @@ export class UsersController {
             await session.endSession();
         }
     }
-
-
 }

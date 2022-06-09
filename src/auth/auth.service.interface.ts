@@ -1,11 +1,8 @@
-import { LoginUserDto, RefreshTokenDto, RegisterUserDto, TokenPairDto } from "./users.dtos";
 import { ClientSession } from "mongoose";
+import { LoginUserDto, RegisterUserDto } from "../users/users.dtos";
+import { RefreshTokenDto, TokenPairDto } from "./tokens/tokens.dtos";
 
-export class JwtPayload {
-    id: string;
-}
-
-export interface IUsersService {
+export interface IAuthService {
     registerUser(userDto: RegisterUserDto, session: ClientSession): Promise<TokenPairDto>,
 
     loginUser(userDto: LoginUserDto, session: ClientSession): Promise<TokenPairDto>,
@@ -13,4 +10,4 @@ export interface IUsersService {
     refreshToken(refreshTokenDto: RefreshTokenDto, session: ClientSession): Promise<TokenPairDto>,
 }
 
-export const IUsersService = Symbol("IUsersService");
+export const IAuthService = Symbol("IAuthService");

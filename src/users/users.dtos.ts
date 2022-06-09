@@ -13,13 +13,3 @@ export class RegisterUserDto extends LoginUserDto {
   @ApiProperty()
   birthDate: Date;
 }
-
-export class RefreshTokenDto {
-  @ApiProperty()
-  refreshToken: string;
-}
-
-export class TokenPairDto extends RefreshTokenDto{
-  @ApiProperty()
-  accessToken: string;
-}

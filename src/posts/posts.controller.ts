@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -7,21 +6,18 @@ import {
     Inject,
     Param,
     Request,
-    Patch,
     Post as HttpPost, Res,
     UploadedFiles, UseGuards,
-    UseInterceptors
+    UseInterceptors, Put
 } from "@nestjs/common";
-import { Post } from "../schemas/posts.schema";
 import { ApiTags } from "@nestjs/swagger";
 import { InjectConnection } from "@nestjs/mongoose";
 import { Connection, Schema as MongooseSchema } from "mongoose";
 import { IPostsService } from "./posts.service.interface";
 import { CreatePostDto } from "./posts.dtos";
-import { Express, Response } from "express";
+import { Response } from "express";
+import { GetIdFromAuthGuard, JwtAuthGuard } from "../auth/auth.guards";
 import { ApiPostFiles } from "../files/files.decorators";
-import { FilesInterceptor } from "@nestjs/platform-express";
-import { GetIdFromAuthGuard, JwtAuthGuard } from "../users/users.guards";
 
 @ApiTags("Записи")
 @Controller("posts")
@@ -40,9 +36,9 @@ export class PostsController {
     }
 
     @HttpPost("/")
-    // @ApiPostFiles()
     @UseGuards(JwtAuthGuard, GetIdFromAuthGuard)
-    @UseInterceptors(FilesInterceptor("files"))
+    // @UseInterceptors(FilesInterceptor("files", 10))
+    @ApiPostFiles()
     async createPost(@Request() req, @Body() createPostDto: CreatePostDto, @UploadedFiles() files, @Res() res: Response) {
         const session = await this._mongoConnection.startSession();
         // session.startTransaction();
@@ -61,7 +57,7 @@ export class PostsController {
         }
     }
 
-    @Patch("/:id")
+    @Put("/:id")
     async updatePost(@Param("id") id: MongooseSchema.Types.ObjectId) {
 
     }

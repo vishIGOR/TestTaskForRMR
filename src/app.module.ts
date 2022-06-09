@@ -10,6 +10,7 @@ import { PostsModule } from './posts/posts.module';
 import { FilesModule } from './files/files.module';
 import { resolve } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     controllers: [AppController],
@@ -27,6 +28,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
             rootPath: resolve( __dirname, 'uploads'),
         }),
         UsersModule,
+        AuthModule,
         PostsModule,
         FilesModule
     ]
